@@ -14,7 +14,7 @@ default_args = {
     'retry_delay': timedelta(minutes=3)
 }
 
-with DAG('ED_UPD_CommodityHistory', default_args=default_args, schedule_interval='@hourly', catchup=False) as dag:
+with DAG('ED_UPD_CommodityHistory', default_args=default_args, schedule_interval='@daily', catchup=False) as dag:
 
     update_commodity_history = PostgresOperator(
         task_id='update_commodity_history',
