@@ -7,9 +7,9 @@ default_args = {
     'wait_for_downstream': True,
     'depends_on_past': True,
     'start_date': datetime(2020, 2, 29),
-    'email': ['airflow@example.com'],
-    'email_on_failure': False,
-    'email_on_retry': False,
+    'email': ['sa.garanin@gmail.com'],
+    'email_on_failure': True,
+    'email_on_retry': True,
     'retries': 1,
     'retry_delay': timedelta(minutes=3)
 }
