@@ -49,7 +49,7 @@ with DAG('ED_UPD_CommodityHistory', default_args=default_args, schedule_interval
     refresh_commodity_history_mv = PostgresOperator(
         task_id='refresh_commodity_history_mv',
         sql= """
-            REFRESH MATERIALIZED VIEW public.commodity_cube WITH DATA;
+            REFRESH MATERIALIZED VIEW CONCURRENTLY public.commodity_cube WITH DATA;
         """,
         postgres_conn_id='postgres_db_ed',
         autocommit=True
