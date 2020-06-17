@@ -21,8 +21,9 @@ with DAG('WIKI_UPD_Fact', default_args=default_args, schedule_interval='@hourly'
         task_id='update_eventlog_facts',
         sql= """
             insert into events_fact 
-            select * from events e 
-                where meta_dt >= (select coalesce(max(meta_dt), '1970-01-01'::date) from events_fact);
+            (select * from events e 
+                where meta_dt >= (select coalesce(max(meta_dt), '1970-01-01'::date) from events_fact))
+            on conflict do nothing;
         """,
         postgres_conn_id='postgres_db_wiki',
         autocommit=True
