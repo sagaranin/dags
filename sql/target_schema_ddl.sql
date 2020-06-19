@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS public.stg_table8 (
 
 -- data tables 
 
-CREATE TABLE public.table1 (
+CREATE TABLE IF NOT EXISTS public.table1 (
 	id int4 NOT NULL,
 	firstname varchar NULL,
 	lastname varchar NULL,
@@ -101,7 +101,7 @@ CREATE TABLE public.table1 (
 	CONSTRAINT table1_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE public.table2 (
+CREATE TABLE IF NOT EXISTS public.table2 (
 	id int4 NOT NULL,
 	firstname varchar NULL,
 	lastname varchar NULL,
@@ -111,7 +111,7 @@ CREATE TABLE public.table2 (
 	CONSTRAINT table2_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE public.table3 (
+CREATE TABLE IF NOT EXISTS public.table3 (
 	id int4 NOT NULL,
 	firstname varchar NULL,
 	lastname varchar NULL,
@@ -121,7 +121,7 @@ CREATE TABLE public.table3 (
 	CONSTRAINT table3_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE public.table4 (
+CREATE TABLE IF NOT EXISTS public.table4 (
 	id int4 NOT NULL,
 	firstname varchar NULL,
 	lastname varchar NULL,
@@ -131,7 +131,7 @@ CREATE TABLE public.table4 (
 	CONSTRAINT table4_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE public.table5 (
+CREATE TABLE IF NOT EXISTS public.table5 (
 	id int4 NOT NULL,
 	firstname varchar NULL,
 	lastname varchar NULL,
@@ -141,7 +141,7 @@ CREATE TABLE public.table5 (
 	CONSTRAINT table5_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE public.table6 (
+CREATE TABLE IF NOT EXISTS public.table6 (
 	id int4 NOT NULL,
 	firstname varchar NULL,
 	lastname varchar NULL,
@@ -151,7 +151,7 @@ CREATE TABLE public.table6 (
 	CONSTRAINT table6_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE public.table7 (
+CREATE TABLE IF NOT EXISTS public.table7 (
 	id int4 NOT NULL,
 	firstname varchar NULL,
 	lastname varchar NULL,
@@ -161,7 +161,7 @@ CREATE TABLE public.table7 (
 	CONSTRAINT table7_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE public.table8 (
+CREATE TABLE IF NOT EXISTS public.table8 (
 	id int4 NOT NULL,
 	firstname varchar NULL,
 	lastname varchar NULL,
