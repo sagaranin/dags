@@ -1,6 +1,7 @@
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.postgres_operator import PostgresOperator
+from operators.oracle_to_postgres import OracleToPostgresOperator
 from airflow.hooks.postgres_hook import PostgresHook
 from airflow.hooks.oracle_hook import OracleHook
 from airflow.models import Variable
@@ -15,51 +16,9 @@ default_args = {
     'wait_for_downstream': True,
     'depends_on_past': True,
     'start_date': datetime(2020, 4, 1, 0, 0, 0),
-    'retries': 0,
-    # 'retry_delay': timedelta(minutes=5)
+    'retries': 0
 }
 
-
-def load_data(ds, **kwargs):
-    tgt_conn = PostgresHook(postgres_conn_id='postgres_tgt').get_conn()
-    """ Выполняет чтение данных из таблицы источника и запись в целевую БД. 
-        Параметры (таблицы, поля, условия) передаются через kwargs
-    """
-    batch_size = int(Variable.get("oebs.select.batch.size", default_var=5000))
-
-    select_query = "select {fields} from {src_schema}.{src_table}".format(**kwargs)
-    if kwargs['use_conditions']:
-        select_query += " where {conditions}".format(**kwargs)
-    logging.info(f"Run query: \"{select_query}\"")
-
-    src_conn = OracleHook(oracle_conn_id='oracle_src').get_conn()
-    src_cursor = src_conn.cursor("serverCursor")
-    src_cursor.execute(select_query)
-
-    tgt_cursor = tgt_conn.cursor()
-    tgt_cursor.execute("truncate table {tgt_schema}.stg_{tgt_table}".format(**kwargs))
-    
-
-    batch_count = 0
-    while True:
-        logging.info(f"Processing batch:\t{batch_count}, size: {batch_size}")
-        records = src_cursor.fetchmany(batch_size)
-        
-        if not records:
-            logging.info("Передача данных из таблицы {src_table} завершена".format(**kwargs))
-            break
-        else:
-            execute_values(  # вставка батча данных
-                tgt_cursor,
-                "INSERT INTO {tgt_schema}.stg_{tgt_table} ({fields}) VALUES %s".format(**kwargs),
-                records
-            )
-
-        batch_count += 1
-    
-    tgt_conn.commit()
-    src_cursor.close()
-    tgt_cursor.close()
 
 def generate_query():
     """Выполняет генерацию запроса для обновления основных таблиц из stage-таблиц"""
@@ -108,11 +67,16 @@ with DAG('OEBS_Data_Load', default_args=default_args, schedule_interval='@daily'
     with tgt_conn.cursor(cursor_factory=DictCursor) as cursor:
             cursor.execute(metadata_query)
             for row in cursor:
-                po = PythonOperator(
+                params = dict(row)
+                params['target_table_prefix'] = 'stg_'
+
+                po = OracleToPostgresOperator(
                     task_id='load_stg_{tgt_table}'.format(**row),
+                    oracle_conn_id='oracle_src',
+                    postgres_conn_id='postgres_tgt',
                     provide_context=True,
-                    python_callable=load_data,
-                    op_kwargs=dict(row)
+                    op_kwargs=params,
+                    batch_size=int(Variable.get("oebs.select.batch.size", default_var=5000))
                 )
 
                 check_target_schema >> po >> update_tables
