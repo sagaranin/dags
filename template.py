@@ -74,7 +74,7 @@ with DAG('OEBS_Data_Load', default_args=default_args, schedule_interval='@daily'
                     task_id='load_stg_{tgt_table}'.format(**row),
                     oracle_conn_id='oracle_src',
                     postgres_conn_id='postgres_tgt',
-                    provide_context=True,
+                    # provide_context=True,
                     params=params,
                     batch_size=int(Variable.get("oebs.select.batch.size", default_var=5000))
                 )

@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS public.tables_md (
 	load_type bpchar(1) NOT NULL,
 	use_conditions bool NOT NULL DEFAULT false,
 	conditions varchar NULL,
+	author varchar NOT NULL,
+	udpated timestamp NOT NULL DEFAULT now(),
 	CONSTRAINT load_type_constraint CHECK ((load_type = ANY (ARRAY['f'::bpchar, 'i'::bpchar]))),
 	CONSTRAINT tables_md_pk PRIMARY KEY (id)
 );
