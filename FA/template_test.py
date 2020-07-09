@@ -41,6 +41,7 @@ def generate_query():
         logging.info(f"Сгенерирован запрос: \n {query}")
         return query
 
+
 ######################################
 ###    DAG and Tasks definition    ###
 ######################################
