@@ -2,9 +2,11 @@
 -- metadata table
 CREATE TABLE IF NOT EXISTS celonis_etl.table_metadata (
 	id serial NOT NULL,
-	src_schema varchar NOT NULL,
-	src_table varchar NOT NULL,
-	fields varchar NOT NULL,
+	is_active bool NOT NULL DEFAULT false,
+	src_query text,
+	src_schema varchar,
+	src_table varchar,
+	fields varchar,
 	key_field varchar NOT NULL,
 	tgt_schema varchar NOT NULL DEFAULT 'celonis_etl',
 	tgt_table varchar NOT NULL,
