@@ -33,15 +33,17 @@ class OracleToPostgresOperator(BaseOperator):
 
                     if self.params['is_active']: 
 
-                        # если src_query не пустое, используем его, иначе конструируем запрос из полей fields, src_schema, src_table и conditions
+                        # если src_query не пустое, используем его значение, иначе конструируем запрос из полей fields, src_schema, src_table
                         if self.params['src_query']: 
-                            select_query = self.params['src_query']
+                            select_query = "with data as ({src_query}) select {fields} from data".format(**self.params)
                         else:
                             select_query = "select {fields} from {src_schema}.{src_table}".format(**self.params)
+
+                        # при наличии добавляем conditions    
+                        if self.params['use_conditions']:
+                            select_query += " where {conditions}".format(**self.params)
                             
-                            if self.params['use_conditions']:
-                                select_query += " where {conditions}".format(**self.params)
-                            logging.info(f"Run query: \"{select_query}\"")
+                        logging.info(f"Run query: \"{select_query}\"")
 
                         # открытие курсоров на чтение и запись
                         src_cursor = src_conn.cursor("serverCursor")
