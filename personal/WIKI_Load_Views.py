@@ -20,6 +20,7 @@ default_args = {
     'retry_delay': timedelta(minutes=5)
 }
 
+
 with DAG('WIKI_Load_Views', default_args=default_args, schedule_interval='@hourly', concurrency=2) as dag:
     
     load_archive = BashOperator(
