@@ -5,7 +5,8 @@ from airflow.hooks.clickhouse_hook import ClickHouseHook
 from datetime import datetime, timedelta
 from operators.postgres_to_clickhouse import PostgresToClickhouseOperator
 
-import csv
+import csv, sys
+csv.field_size_limit(sys.maxsize)
 
 default_args = {
     'owner': 'airflow',
