@@ -44,8 +44,9 @@ with DAG('WIKI_Load_Views', default_args=default_args, schedule_interval='@hourl
         with open(file_path, newline='') as csvfile:
             reader = csv.reader(csvfile, delimiter=' ')
             for row in reader:
-                full_row = (datetime.strptime(execution_dt, '%Y-%m-%d %H:%M:%S'), row[0], row[1], int(row[2]))
-                batch.append(full_row)
+                if row[0] in ['en', 'ru']:
+                    full_row = (datetime.strptime(execution_dt, '%Y-%m-%d %H:%M:%S'), row[0], row[1], int(row[2]))
+                    batch.append(full_row)
 
                 if len(batch) >= 1000:
                     tgt_client.execute(insert_query, batch)
