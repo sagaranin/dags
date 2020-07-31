@@ -24,7 +24,7 @@ with DAG('WIKI_UPD_Fact', default_args=default_args, schedule_interval='@daily')
         clickhouse_conn_id='clickhouse_db_default',
         batch_size=1000,
         select_query="select * from events_current where meta_dt >= '{{ prev_ds }}'::date and meta_dt < '{{ ds }}'::date ",
-        insert_query='INSERT INTO events_fact (meta_id,meta_dt,meta_request_id,meta_partition,meta_offset,uri,id,bot,`type`,namespace,`user`,title,comment,server_name,wiki,length_old,length_new,revision_old,revision_new) VALUES '
+        insert_query='INSERT INTO events_fact (meta_id,meta_dt,meta_request_id,meta_partition,meta_offset,id,bot,`type`,namespace,`user`,title,title_prefix,comment,server_name,wiki,length_old,length_new,revision_old,revision_new) VALUES '
     )
 
     load_eventlog_facts 
