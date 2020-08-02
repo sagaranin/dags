@@ -22,7 +22,7 @@ default_args = {
 }
 
 
-with DAG('WIKI_Load_Views', default_args=default_args, schedule_interval='@hourly', concurrency=2) as dag:
+with DAG('WIKI_Load_Views', default_args=default_args, schedule_interval='@hourly', concurrency=3) as dag:
     
     load_archive = BashOperator(
         task_id='load_archive',
@@ -43,9 +43,9 @@ with DAG('WIKI_Load_Views', default_args=default_args, schedule_interval='@hourl
         insert_query = "insert into views values"
 
         with open(file_path, newline='') as csvfile:
-            reader = csv.reader(csvfile, delimiter=' ')
+            reader = csv.reader((line.replace('\0','') for line in csvfile), delimiter=' ')
             for row in reader:
-                if row[0] in ['en', 'ru']:
+                if isinstance(row, list) and row[0] in ['en', 'ru']:
                     full_row = (datetime.strptime(execution_dt, '%Y-%m-%d %H:%M:%S'), row[0], row[1], int(row[2]))
                     batch.append(full_row)
 
