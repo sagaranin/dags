@@ -21,6 +21,27 @@ default_args = {
     'retry_delay': timedelta(minutes=5)
 }
 
+def process_csv(ds, **kwargs):
+    execution_dt = kwargs['execution_date'].strftime('%Y-%m-%d %H:00:00')
+    file_path = f"/tmp/pageviews-{kwargs['execution_date'].strftime('%Y%m%d-%H')}0000"
+    tgt_client =  ClickHouseHook(clickhouse_conn_id='clickhouse_db_default').get_conn()
+    
+    batch = []
+    insert_query = "insert into views values"
+
+    with open(file_path, newline='') as csvfile:
+        reader = csv.reader((line.replace('\0','') for line in csvfile), delimiter=' ')
+        for row in reader:
+            if len(row) == 4 and row[0] in ['en', 'ru']:
+                full_row = (datetime.strptime(execution_dt, '%Y-%m-%d %H:%M:%S'), row[0], row[1], int(row[2]))
+                batch.append(full_row)
+
+            if len(batch) >= 1000:
+                tgt_client.execute(insert_query, batch)
+                batch.clear()
+
+        tgt_client.execute(insert_query, batch)
+
 
 with DAG('WIKI_Load_Views', default_args=default_args, schedule_interval='@hourly', concurrency=3) as dag:
     
@@ -33,27 +54,6 @@ with DAG('WIKI_Load_Views', default_args=default_args, schedule_interval='@hourl
         task_id='extract_archive',
         bash_command='gzip -df /tmp/pageviews-{{ execution_date.strftime("%Y%m%d-%H") }}0000.gz'
     )
-
-    def process_csv(ds, **kwargs):
-        execution_dt = kwargs['execution_date'].strftime('%Y-%m-%d %H:00:00')
-        file_path = f"/tmp/pageviews-{kwargs['execution_date'].strftime('%Y%m%d-%H')}0000"
-        tgt_client =  ClickHouseHook(clickhouse_conn_id='clickhouse_db_default').get_conn()
-        
-        batch = []
-        insert_query = "insert into views values"
-
-        with open(file_path, newline='') as csvfile:
-            reader = csv.reader((line.replace('\0','') for line in csvfile), delimiter=' ')
-            for row in reader:
-                if isinstance(row, list) and row[0] in ['en', 'ru']:
-                    full_row = (datetime.strptime(execution_dt, '%Y-%m-%d %H:%M:%S'), row[0], row[1], int(row[2]))
-                    batch.append(full_row)
-
-                if len(batch) >= 1000:
-                    tgt_client.execute(insert_query, batch)
-                    batch.clear()
-
-            tgt_client.execute(insert_query, batch)
 
     load_views = PythonOperator(
         task_id='load_views',
