@@ -17,8 +17,8 @@ default_args = {
     'email_on_success': False,
     'email_on_failure': True,
     'email_on_retry': True,
-    'retries': 3,
-    'retry_delay': timedelta(minutes=5)
+    'retries': 12,
+    'retry_delay': timedelta(hours=1)
 }
 
 def process_csv(ds, **kwargs):
@@ -36,18 +36,20 @@ def process_csv(ds, **kwargs):
                 full_row = (datetime.strptime(execution_dt, '%Y-%m-%d %H:%M:%S'), row[0], row[1], int(row[2]))
                 batch.append(full_row)
 
-            if len(batch) >= 1000:
-                tgt_client.execute(insert_query, batch)
-                batch.clear()
+            # if len(batch) >= 1000000:
+            #     tgt_client.execute(insert_query, batch)
+            #     batch.clear()
 
+        print(f"Start writing batch {len(batch)}")
         tgt_client.execute(insert_query, batch)
+        print("End writing batch")
 
 
 with DAG('WIKI_Load_Views', default_args=default_args, schedule_interval='@hourly', concurrency=3) as dag:
     
     load_archive = BashOperator(
         task_id='load_archive',
-        bash_command='curl -o /tmp/pageviews-{{ execution_date.strftime("%Y%m%d-%H") }}0000.gz https://dumps.wikimedia.org/other/pageviews/{{ execution_date.strftime("%Y") }}/{{ execution_date.strftime("%Y-%m") }}/pageviews-{{ execution_date.strftime("%Y%m%d-%H") }}0000.gz'
+        bash_command='curl -o /tmp/pageviews-{{ execution_date.strftime("%Y%m%d-%H") }}0000.gz --fail https://dumps.wikimedia.org/other/pageviews/{{ execution_date.strftime("%Y") }}/{{ execution_date.strftime("%Y-%m") }}/pageviews-{{ execution_date.strftime("%Y%m%d-%H") }}0000.gz'
     )
 
     extract_archive = BashOperator(
