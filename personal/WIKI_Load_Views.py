@@ -3,7 +3,6 @@ from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.hooks.clickhouse_hook import ClickHouseHook
 from datetime import datetime, timedelta
-from operators.postgres_to_clickhouse import PostgresToClickhouseOperator
 
 import csv, sys
 csv.field_size_limit(sys.maxsize)
