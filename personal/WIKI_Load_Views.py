@@ -35,10 +35,6 @@ def process_csv(ds, **kwargs):
                 full_row = (datetime.strptime(execution_dt, '%Y-%m-%d %H:%M:%S'), row[0], row[1], int(row[2]))
                 batch.append(full_row)
 
-            # if len(batch) >= 1000000:
-            #     tgt_client.execute(insert_query, batch)
-            #     batch.clear()
-
         print(f"Start writing batch {len(batch)}")
         tgt_client.execute(insert_query, batch)
         print("End writing batch")
